@@ -1,0 +1,27 @@
+/* Murray/Kirasich SAS CODE */
+/* MSDS 6370 Project */
+/*Import the data from local directory, place into a table called salesData*/
+PROC IMPORT
+/* This line will be necessary to change to run on any computer but mine*/
+DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\Data\projectData.xls"
+OUT = salesData
+REPLACE
+DBMS = XLS;
+sheet = "projectdata";
+run;
+
+
+
+proc print data = salesdata;
+run;
+
+/*get descriptive stats, distributions of sales and inventory */
+
+
+/*Sales Data analysis - stratify on sales */
+
+/*Neyman allocation*/
+
+/*Proc Surveyselect*/
+
+/*Proc SurveyMeans */
