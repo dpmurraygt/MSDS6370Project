@@ -16,7 +16,36 @@ proc print data = salesdata;
 run;
 
 /*get descriptive stats, distributions of sales and inventory */
+proc means data = salesdata;
+var sales inventory;
+run;
 
+proc univariate data = salesdata;
+var sales;
+histogram sales/kernel;
+inset n='Number of Companies';
+   label LoanType = 'Type of Loan';
+options gstyle;
+run;
+
+
+proc univariate data = salesdata;
+var inventory;
+histogram inventory/kernel;
+inset n='Number of Companies';
+options gstyle;
+run;
+
+/* There's a pretty high correlation, and both have similar distributions, I bet we get nearly the same answer for both variables*/
+
+/* scatterplot of the two versus another, plus correlation */
+proc sgplot data = salesdata;
+scatter x = sales y = inventory;
+run;
+
+proc corr data = salesdata;
+var sales inventory;
+run;
 
 /*Sales Data analysis - stratify on sales */
 
