@@ -66,31 +66,31 @@ DBMS = XLS;
 run;
 proc print data = invData;
 run;
-/*Cutoff allocation*/
-DATA cutoffsize; 
-INPUT str _total_; 
-DATALINES; 
-1 6954
-2 1689
-3 728
-4 292
-5 90
-6 9
-; 
 
-/*Proc Surveyselect for SRS*/
-PROC SURVEYSELECT DATA=invData METHOD= srs OUT=
-srssample SAMPSIZE= 500 SEED = 91114 STATS;
-TITLE "Simple random sample";
-
-/*Proc SurveyMeans - not working */
-PROC SURVEYMEANS DATA = invData MEAN TOTAL = cutoffsize; 
-   STRATUM str;
-   var sales inventory; 
-run;
 
 /*Neyman allocation*/
+data strsizes;
+input strata _total_;
+datalines;
+1 356
+2 86
+3 37
+4 14
+5 4
+6 3
+;
+run;
 
 /*Proc Surveyselect*/
+proc surveyselect data=invData method = srs out = neymanInventoryData sampsize = (356,86,37,14,4,3) seed=91116;
+strata strata;
+title "Neyman allocation";
+run;
 
 /*Proc SurveyMeans */
+proc surveymeans data = neymanInventoryData sum clsum total = 500
+mean sum CLSUM;
+var inventory sales;
+strata strata;
+title "Neyman allocation";
+run;
