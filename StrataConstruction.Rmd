@@ -38,6 +38,7 @@ TotalSampleSize <- 500
 ```
 
 
+
 ```{r}
 #designate the top 20% of cumulative sales as certainty strata
 ProjectData %<>% arrange(sales) %>% mutate(CumSales = cumsum(sales)) %>% mutate(cumPctSales = CumSales/sum(sales)) %>% mutate(Certainty=ifelse(cumPctSales>0.8, TRUE, FALSE))
@@ -71,6 +72,17 @@ ggsave("Images/EightTwentyForCertainty.bmp", device="bmp", width=8, height=2, dp
 ProjectData %>% group_by() %>% summarise(Median = median(sales), Mean=mean(sales), StdDev = sd(sales))
 
 ```
+
+```{r}
+ProjectData %>% ggplot(aes(x=inventory, y=sales)) + geom_point(alpha=0.1) + theme_light() + scale_x_log10("Inventory in Dollars", labels=scales::dollar) + scale_y_log10("Sales in Dollars", labels=scales::dollar)
+
+ProjectData %>%mutate(Group="All") %>% ggplot(aes(x=sales, y=0, group=Group)) + geom_boxplot() + theme_light() + scale_x_log10("sales in Dollars", labels=scales::dollar)
+
+
+ggsave("SalesVs.Inventory.bmp", device="bmp", width=8, height=2, dpi=300)
+
+```
+
 
 
 ```{r}
