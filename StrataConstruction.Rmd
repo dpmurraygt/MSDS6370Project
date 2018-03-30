@@ -1,0 +1,100 @@
+---
+title: "MSDS 6370 Project - Strata Cutoffs"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(magrittr)
+library(stratification)
+library(readxl)
+library(ggthemes)
+```
+
+
+```{r}
+ProjectData <- read_xls("Data/ProjectData.xls")
+
+```
+
+
+
+```{r}
+#Parameters
+
+#Certainty Strata Size - In terms of percent of total sales
+CertaintyPct <- 0.2
+
+#Number of Non-Certainty Strata
+NumberOfStrata <- 5
+
+#Total Sample, including Certainty
+TotalSampleSize <- 500
+
+
+
+```
+
+
+```{r}
+#designate the top 20% of cumulative sales as certainty strata
+ProjectData %<>% arrange(sales) %>% mutate(CumSales = cumsum(sales)) %>% mutate(cumPctSales = CumSales/sum(sales)) %>% mutate(Certainty=ifelse(cumPctSales>0.8, TRUE, FALSE))
+
+
+CertaintyStrata <- ProjectData %>% mutate(Index=row_number()) %>% filter(Certainty==TRUE) %>% select(Index)
+
+#Do some viz of the Data set
+ProjectData %>% ggplot(aes(x=sales)) + geom_histogram() + theme_light()
+
+TwentyPct <- 0.2 * max(ProjectData$CumSales)
+
+ProjectData %>% ggplot(aes(x=sales)) + geom_histogram() + theme_light()  + scale_x_log10("Cumulative Sales Dollars on Log Scale", labels=scales::comma) + scale_y_continuous(labels=scales::comma, "Count of Companies") + ggtitle("Histogram of Sales By Company", "Median Sales of $62,033")
+
+
+ggsave("Images/HistogramLogConvertedX.bmp", device="bmp", width=8, height=2, dpi=300)
+
+
+TwentyPct <- (ProjectData[ProjectData$cumPctSales>=0.8,])
+
+ProjectData%>%ggplot(aes(x=row_number(CumSales), y=CumSales, fill=as.character(Certainty))) + geom_bar(stat='identity') + theme_light() + scale_y_continuous("Cumulative Sales Dollars", labels=scales::dollar) + scale_x_continuous(labels=scales::comma, "Count of Companies") + ggtitle("68 Companies Comprise Final 20% of Sales", "These Companies Comprise 0.7% of Number of Companies") + scae_fill_manual(values=c("#dadada", "#ffbe00")) + theme(legend.position = "none") 
+
+68/nrow(ProjectData)
+
+ggsave("Images/EightTwentyForCertainty.bmp", device="bmp", width=8, height=2, dpi=300)
+
+```
+
+```{r}
+
+ProjectData %>% group_by() %>% summarise(Median = median(sales), Mean=mean(sales), StdDev = sd(sales))
+
+```
+
+
+```{r}
+#histogram the Certainty Stratum
+
+ProjectData %>% filter(Certainty==TRUE) %>% data.frame() %>% ggplot(aes(x=sales)) + geom_histogram() + theme_light() + scale_x_log10("Sales Shown on Log Scale", labels=scales::dollar) + scale_y_continuous("Count of Companies") + ggtitle("Certainty Stratum Includes Largest Sales Values", "Sales ")
+
+ggsave("Images/CertaintyStratumHist.bmp", device="bmp", width=8, height=2, dpi=300)
+```
+
+
+```{r}
+
+#Remove the certainty part, what's left?
+NonCertaintySampleSize <- 500 - nrow(CertaintyStrata)
+
+StrataSizes <- c(5:10)
+AllStratification <- list()
+
+for (size in StrataSizes){
+
+ThisStratification<-strata.cumrootf(x=ProjectData$sales, n=TotalSampleSize, Ls = size, certain = CertaintyStrata$Index)
+
+print(ThisStratification)
+}
+
+```
