@@ -76,10 +76,12 @@ ProjectData %>% group_by() %>% summarise(Median = median(sales), Mean=mean(sales
 ```{r}
 ProjectData %>% ggplot(aes(x=inventory, y=sales)) + geom_point(alpha=0.1) + theme_light() + scale_x_log10("Inventory in Dollars", labels=scales::dollar) + scale_y_log10("Sales in Dollars", labels=scales::dollar)
 
-ProjectData %>%mutate(Group="All") %>% ggplot(aes(x=sales, y=0, group=Group)) + geom_boxplot() + theme_light() + scale_x_log10("sales in Dollars", labels=scales::dollar)
+#ProjectData %>%mutate(Group="All") %>% ggplot(aes(x=sales, y=0, group=Group)) + geom_boxplot() + theme_light() + scale_x_log10("sales in Dollars", labels=scales::dollar)
 
 
-ggsave("SalesVs.Inventory.bmp", device="bmp", width=8, height=2, dpi=300)
+ggsave("Images/SalesVs.Inventory.bmp", device="bmp", width=8, height=2, dpi=300)
+
+cor(ProjectData$sales, ProjectData$inventory)
 
 ```
 
@@ -102,11 +104,32 @@ NonCertaintySampleSize <- 500 - nrow(CertaintyStrata)
 StrataSizes <- c(5:10)
 AllStratification <- list()
 
+#make a filtered version of the data frame minus certainty strata that we will match up with the strata assignment
+Limited <- ProjectData %>% filter(Certainty==FALSE) %>% select(coID, sales)
+
+TheCertainty <- ProjectData%>% filter(Certainty==TRUE) %>% select(coID, sales) %>% mutate(strata="Certainty")
+
+
 for (size in StrataSizes){
 
 ThisStratification<-strata.cumrootf(x=ProjectData$sales, n=TotalSampleSize, Ls = size, certain = CertaintyStrata$Index)
 
 print(ThisStratification)
+
+#stratum file output
+filename <- paste("StratumAssign/SalesStratumAssignment", size, ".csv", sep="")
+
+
+temp<-cbind(Limited, strata=ThisStratification$stratumID)
+
+#Append Back in the certainty part
+temp<- rbind(temp, TheCertainty)
+
+write.csv(temp, file = filename)
+
 }
 
 ```
+
+
+
