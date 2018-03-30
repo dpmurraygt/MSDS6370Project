@@ -120,7 +120,11 @@ print(ThisStratification)
 filename <- paste("StratumAssign/SalesStratumAssignment", size, ".csv", sep="")
 
 
-temp<-cbind(Limited, strata=ThisStratification$stratumID)
+temp<-cbind(Limited, strata=as.numeric(ThisStratification$stratumID))
+
+
+TheCertainty <- ProjectData%>% filter(Certainty==TRUE) %>% select(coID, sales) %>% mutate(strata=size+1)
+
 
 #Append Back in the certainty part
 temp<- rbind(temp, TheCertainty)

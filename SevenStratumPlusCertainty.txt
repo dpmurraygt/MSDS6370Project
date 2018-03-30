@@ -1,0 +1,78 @@
+/* 7 Stratum + Certainty*/
+/*Import the data from local directory, place into a table called salesData*/
+PROC IMPORT
+/* DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\Data\projectData.xls" */
+DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\StratumAssign\SalesStratumAssignment7.xlsx"
+OUT = salesData
+REPLACE
+DBMS = XLSx;
+run;
+
+PROC SURVEYSELECT DATA = salesData out = srsSelect sampsize = (33, 63, 58, 48, 58, 64, 108, 68) seed =101010 stats;
+strata strata;
+title "Seven Strata + certainty Sample Selection";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata  _total_;
+datalines;
+1	1979
+2	3286
+3 	2181
+4 	1187
+5	539
+6	338
+7	184
+8	68
+replace;
+attrib strata format=$9;
+;
+
+PROC SURVEYMEANS DATA = srsSelect sum clsum total = strsizes;
+var sales;
+strata strata;
+weight SamplingWeight;
+title "7 Strata + Certainty, cum(f) and Neyman Allocation";
+
+/* Below this line is 8 plus Certainty */
+/*Import the data from local directory, place into a table called salesData*/
+PROC IMPORT
+/* DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\Data\projectData.xls" */
+DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\StratumAssign\SalesStratumAssignment8.xlsx"
+OUT = salesData
+REPLACE
+DBMS = XLSx;
+run;
+
+PROC SURVEYSELECT DATA = salesData out = srsSelect sampsize = (22, 55, 62, 52, 48, 53, 55, 85, 68) seed =101010 stats;
+strata strata;
+title "Eight Strata + certainty Sample Selection";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata _total_;
+datalines;
+1	1282
+2	3538
+3 	2167
+4 	1352
+5	584
+6	381
+7	270
+8	120
+9	68
+;
+
+PROC SURVEYMEANS DATA = srsSelect sum clsum total = strsizes;
+var sales;
+strata strata;
+weight SamplingWeight;
+title "8 Strata + Certainty, cum(f) and Neyman Allocation";
+
+ 
