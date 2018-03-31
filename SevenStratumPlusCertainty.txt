@@ -69,10 +69,135 @@ datalines;
 9	68
 ;
 
-PROC SURVEYMEANS DATA = srsSelect sum clsum total = strsizes;
+PROC SURVEYMEANS DATA = srsSelect mean cl sum clsum total = strsizes;
 var sales;
 strata strata;
 weight SamplingWeight;
 title "8 Strata + Certainty, cum(f) and Neyman Allocation";
 
+PROC SURVEYSELECT DATA = salesData out = srsSelect sampsize = (22, 55, 62, 52, 48, 53, 55, 85, 68) seed =101011 stats;
+strata strata;
+title "Eight Strata + certainty Sample Selection Run 2";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata _total_;
+datalines;
+1	1282
+2	3538
+3 	2167
+4 	1352
+5	584
+6	381
+7	270
+8	120
+9	68
+;
+
+PROC SURVEYMEANS DATA = srsSelect mean cl sum clsum total = strsizes;
+var sales;
+strata strata;
+weight SamplingWeight;
+title "8 Strata + Certainty, cum(f) and Neyman Allocation Run 2";
+
+PROC SURVEYSELECT DATA = salesData out = srsSelect sampsize = (22, 55, 62, 52, 48, 53, 55, 85, 68) seed =101012 stats;
+strata strata;
+title "Eight Strata + certainty Sample Selection Run 3";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata _total_;
+datalines;
+1	1282
+2	3538
+3 	2167
+4 	1352
+5	584
+6	381
+7	270
+8	120
+9	68
+;
+
+PROC SURVEYMEANS DATA = srsSelect mean cl sum clsum total = strsizes;
+var sales;
+strata strata;
+weight SamplingWeight;
+title "8 Strata + Certainty, cum(f) and Neyman Allocation Run 3";
+PROC SURVEYSELECT DATA = salesData out = srsSelect sampsize = (22, 55, 62, 52, 48, 53, 55, 85, 68) seed =101013 stats;
+strata strata;
+title "Eight Strata + certainty Sample Selection Run 4";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata _total_;
+datalines;
+1	1282
+2	3538
+3 	2167
+4 	1352
+5	584
+6	381
+7	270
+8	120
+9	68
+;
+
+PROC SURVEYMEANS DATA = srsSelect mean cl sum clsum total = strsizes;
+var sales;
+strata strata;
+weight SamplingWeight;
+title "8 Strata + Certainty, cum(f) and Neyman Allocation Run 4";
+
+
+PROC SURVEYSELECT DATA = salesData out = srsSelect sampsize = (22, 55, 62, 52, 48, 53, 55, 85, 68) seed =101014 stats;
+strata strata;
+title "Eight Strata + certainty Sample Selection Run 5";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata _total_;
+datalines;
+1	1282
+2	3538
+3 	2167
+4 	1352
+5	584
+6	381
+7	270
+8	120
+9	68
+;
+
+PROC SURVEYMEANS DATA = srsSelect mean cl sum clsum total = strsizes;
+var sales;
+strata strata;
+weight SamplingWeight;
+title "8 Strata + Certainty, cum(f) and Neyman Allocation Run 5";
+run;
+
+/*get descriptive stats, distributions of sales and inventory */
+proc means data = salesdata;
+var sales inventory;
+run;
+
+proc univariate data = salesdata;
+var sales;
+histogram sales/kernel;
+inset n='Number of Companies';
+   label LoanType = 'Type of Loan';
+options gstyle;
+run;
  
