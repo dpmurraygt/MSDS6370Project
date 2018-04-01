@@ -1,0 +1,139 @@
+---
+title: "MSDS 6370 Project - Strata Cutoffs"
+output: html_notebook
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(magrittr)
+library(stratification)
+library(readxl)
+library(ggthemes)
+```
+
+
+```{r}
+ProjectData <- read_xls("Data/ProjectData.xls")
+
+```
+
+
+
+```{r}
+#Parameters
+
+#Certainty Strata Size - In terms of percent of total sales
+CertaintyPct <- 0.2
+
+#Number of Non-Certainty Strata
+NumberOfStrata <- 6
+
+#Total Sample, including Certainty
+TotalSampleSize <- 500
+
+
+
+```
+
+
+
+```{r}
+#designate the top 20% of cumulative sales as certainty strata
+ProjectData %<>% arrange(inventory) %>% mutate(CumInv = cumsum(inventory)) %>% mutate(cumPctInv = CumInv/sum(inventory)) %>% mutate(Certainty=ifelse(cumPctInv>0.8, TRUE, FALSE))
+
+
+CertaintyStrata <- ProjectData %>% mutate(Index=row_number()) %>% filter(Certainty==TRUE) %>% select(Index)
+
+#Do some viz of the Data set
+ProjectData %>% ggplot(aes(x=inventory)) + geom_histogram() + theme_light()
+
+TwentyPct <- 0.2 * max(ProjectData$CumInv)
+
+ProjectData %>% ggplot(aes(x=inventory)) + geom_histogram() + theme_light()  + scale_x_log10("Cumulative Inventory on Log Scale", labels=scales::comma) + scale_y_continuous(labels=scales::comma, "Count of Companies") + ggtitle("Histogram of Inventory By Company", "Median Inventory of 55629.19")
+
+
+ggsave("Images/HistogramLogConvertedXInv.bmp", device="bmp", width=8, height=2, dpi=300)
+
+
+TwentyPct <- (ProjectData[ProjectData$cumPctInv>=0.8,])
+
+ProjectData%>%ggplot(aes(x=row_number(CumInv), y=CumInv, fill=as.character(Certainty))) + geom_bar(stat='identity') + theme_light() + scale_y_continuous("Cumulative Inventory Units", labels=scales::dollar) + scale_x_continuous(labels=scales::comma, "Count of Companies") + ggtitle("16 Companies Comprise Final 20% of Inventory", "These Companies Comprise 0.1% of Number of Companies") + scale_fill_manual(values=c("#dadada", "#ffbe00")) + theme(legend.position = "none") 
+
+16/nrow(ProjectData)
+
+ggsave("Images/EightTwentyForCertaintyInv.bmp", device="bmp", width=8, height=2, dpi=300)
+
+```
+
+```{r}
+
+ProjectData %>% group_by() %>% summarise(Median = median(inventory), Mean=mean(inventory), StdDev = sd(inventory))
+
+```
+
+```{r}
+ProjectData %>% ggplot(aes(x=inventory, y=sales)) + geom_point(alpha=0.1) + theme_light() + scale_x_log10("Inventory in Dollars", labels=scales::dollar) + scale_y_log10("Sales in Dollars", labels=scales::dollar)
+
+#ProjectData %>%mutate(Group="All") %>% ggplot(aes(x=sales, y=0, group=Group)) + geom_boxplot() + theme_light() + scale_x_log10("sales in Dollars", labels=scales::dollar)
+
+
+ggsave("Images/SalesVs.Inventory.bmp", device="bmp", width=8, height=2, dpi=300)
+
+cor(ProjectData$sales, ProjectData$inventory)
+
+```
+
+
+
+```{r}
+#histogram the Certainty Stratum
+
+ProjectData %>% filter(Certainty==TRUE) %>% data.frame() %>% ggplot(aes(x=inventory)) + geom_histogram() + theme_light() + scale_x_log10("Inventory Shown on Log Scale") + scale_y_continuous("Count of Companies") + ggtitle("Certainty Stratum Includes Largest Inventory Values", "Inventory ")
+
+ggsave("Images/CertaintyStratumHistInv.bmp", device="bmp", width=8, height=2, dpi=300)
+```
+
+
+```{r}
+
+#Remove the certainty part, what's left?
+NonCertaintySampleSize <- 500 - nrow(CertaintyStrata)
+
+StrataSizes <- c(5:10)
+AllStratification <- list()
+
+#make a filtered version of the data frame minus certainty strata that we will match up with the strata assignment
+Limited <- ProjectData %>% filter(Certainty==FALSE) %>% select(coID, inventory)
+
+TheCertainty <- ProjectData%>% filter(Certainty==TRUE) %>% select(coID, inventory) %>% mutate(strata="Certainty")
+
+
+for (size in StrataSizes){
+
+ThisStratification<-strata.cumrootf(x=ProjectData$inventory, n=TotalSampleSize, Ls = size, certain = CertaintyStrata$Index)
+
+print(ThisStratification)
+
+#stratum file output
+filename <- paste("StratumAssign/InventoryStratumAssignment", size, ".csv", sep="")
+
+
+temp<-cbind(Limited, strata=as.numeric(ThisStratification$stratumID))
+
+
+TheCertainty <- ProjectData%>% filter(Certainty==TRUE) %>% select(coID, inventory) %>% mutate(strata=size+1)
+
+
+#Append Back in the certainty part
+temp<- rbind(temp, TheCertainty)
+
+write.csv(temp, file = filename)
+
+}
+
+```
+
+
+
