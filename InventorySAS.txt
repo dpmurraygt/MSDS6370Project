@@ -1,0 +1,89 @@
+/* 7 Stratum + Certainty*/
+/*Import the data from local directory, place into a table called salesData*/
+PROC IMPORT
+DATAFILE="\\Client\C$\Users\kkirasich\Documents\GitHub\MSDS6370Project\StratumAssign\InventoryStratumAssignment7.xlsx"
+OUT = invData
+REPLACE
+DBMS = XLSx;
+run;
+
+PROC SURVEYSELECT DATA = invData out = srsSelect sampsize = (101, 53, 77, 51, 71, 68, 63, 16) seed =101010 stats;
+strata strata;
+title "Seven Strata + certainty Sample Selection";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata  _total_;
+datalines;
+1	5094
+2	2005
+3 	1462
+4 	612
+5	356
+6	190
+7	63
+8	16
+;
+
+PROC SURVEYMEANS DATA = srsSelect sum clsum total = strsizes;
+var inventory;
+strata strata;
+weight SamplingWeight;
+title "7 Strata + Certainty, cum(f) and Neyman Allocation";
+
+/* Below this line is 8 plus Certainty */
+/*Import the data from local directory, place into a table called salesData*/
+PROC IMPORT
+/* DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\Data\projectData.xls" */
+DATAFILE="\\Client\C$\Users\dmurray\Documents\SMU\MSDS 6370 Sampling\Project\MSDS6370Project\StratumAssign\SalesStratumAssignment8.xlsx"
+OUT = invData8
+REPLACE
+DBMS = XLSx;
+run;
+
+PROC SURVEYSELECT DATA = invData8 out = srsSelect8 sampsize = (91, 52, 30, 49, 67, 67, 63, 65, 16) seed =101010 stats;
+strata strata;
+title "Eight Strata + certainty Sample Selection";
+run;
+
+proc print data=srsSelect;
+run;
+
+data strsizes;
+input strata _total_;
+datalines;
+1	4848
+2	1932
+3 	1012
+4 	834
+5	587
+6	296
+7	172
+8	65
+9	16
+;
+
+PROC SURVEYMEANS DATA = srsSelect8 mean cl sum clsum total = strsizes;
+var inventory;
+strata strata;
+weight SamplingWeight;
+title "8 Strata + Certainty, cum(f) and Neyman Allocation";
+
+
+
+/*get descriptive stats, distributions of sales and inventory */
+proc means data = invdata;
+var sales inventory;
+run;
+
+proc univariate data = salesdata;
+var inventory;
+histogram sales/kernel;
+inset n='Number of Companies';
+   label LoanType = 'Type of Loan';
+options gstyle;
+run;
+ 
