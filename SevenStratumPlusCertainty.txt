@@ -200,4 +200,52 @@ inset n='Number of Companies';
    label LoanType = 'Type of Loan';
 options gstyle;
 run;
- 
+ /* Running Surveyselect and surveymeans with no stratification variable, sample=500, seed=101014 */
+proc surveyselect DATA = salesData out = srsSelectNoStrata sampsize = 500 seed =101014 stats;
+title "Stratification Removed";
+run;
+
+PROC SURVEYMEANS DATA = srsSelectNoStrata mean cl sum clsum total = 9762;
+var sales;
+title "Stratification Removed";
+run;
+
+ /* Running Surveyselect and surveymeans with no stratification variable, sample=500, seed=101013 */
+proc surveyselect DATA = salesData out = srsSelectNoStrata sampsize = 500 seed =101013 stats;
+title "Stratification Removed";
+run;
+
+PROC SURVEYMEANS DATA = srsSelectNoStrata mean cl sum clsum total = 9762;
+var sales;
+title "Stratification Removed";
+run;
+
+ /* Running Surveyselect and surveymeans with no stratification variable, sample=500, seed=101012 */
+proc surveyselect DATA = salesData out = srsSelectNoStrata sampsize = 500 seed =101012 stats;
+title "Stratification Removed";
+run;
+
+PROC SURVEYMEANS DATA = srsSelectNoStrata mean cl sum clsum total = 9762;
+var sales;
+title "Stratification Removed";
+run;
+
+ /* Running Surveyselect and surveymeans with no stratification variable, sample=500, seed=101011 */
+proc surveyselect DATA = salesData out = srsSelectNoStrata sampsize = 500 seed =101011 stats;
+title "Stratification Removed";
+run;
+
+PROC SURVEYMEANS DATA = srsSelectNoStrata mean cl sum clsum total = 9762;
+var sales;
+title "Stratification Removed";
+run;
+
+ /* Running Surveyselect and surveymeans with no stratification variable, sample=500, seed=101010 */
+proc surveyselect DATA = salesData out = srsSelectNoStrata sampsize = 500 seed =101011 stats;
+title "Stratification Removed";
+run;
+
+PROC SURVEYMEANS DATA = srsSelectNoStrata mean cl sum clsum total = 9762;
+var sales;
+title "Stratification Removed";
+run;
